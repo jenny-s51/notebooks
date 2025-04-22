@@ -14,6 +14,7 @@ import {
   ModalFooter,
   Form,
   FormGroup,
+  ModalHeader,
 } from '@patternfly/react-core';
 
 interface Volume {
@@ -140,16 +141,12 @@ export const WorkspaceCreationPropertiesTable: React.FC<WorkspaceCreationPropert
         Create Volume
       </Button>
 
-      <Modal
-        title={editIndex !== null ? 'Edit Volume' : 'Create Volume'}
-        isOpen={isModalOpen}
-        onClose={resetForm}
-        variant={ModalVariant.small}
-      >
+      <Modal isOpen={isModalOpen} onClose={resetForm} variant={ModalVariant.small}>
+        <ModalHeader
+          title={editIndex !== null ? 'Edit Volume' : 'Create Volume'}
+          description="Add a volume and optionally connect it with an existing workspace."
+        />
         <ModalBody>
-          <div> Add volume and optionally connect it with an existing workspace.</div>
-          <div className="pf-u-font-size-sm" />
-          <div className="pf-c-form">
             <Form>
               <FormGroup label="PVC Name" isRequired fieldId="pvc-name">
                 <TextInput
@@ -163,16 +160,15 @@ export const WorkspaceCreationPropertiesTable: React.FC<WorkspaceCreationPropert
               </FormGroup>
               <FormGroup label="Mount Path" isRequired fieldId="mount-path">
                 <TextInput
-                  name="mountPath"
+                    name="mountPath"
                   isRequired
                   type="text"
-                  value={formData.mountPath}
-                  onChange={(_, val) => setFormData({ ...formData, mountPath: val })}
+                    value={formData.mountPath}
+                    onChange={(_, val) => setFormData({ ...formData, mountPath: val })}
                   id="mount-path"
-                />
+                  />
               </FormGroup>
             </Form>
-          </div>
         </ModalBody>
         <ModalFooter>
           <Button
@@ -180,7 +176,7 @@ export const WorkspaceCreationPropertiesTable: React.FC<WorkspaceCreationPropert
             onClick={handleAddOrEdit}
             isDisabled={!formData.pvcName || !formData.mountPath}
           >
-            {editIndex !== null ? 'Save' : 'Add'}
+            {editIndex !== null ? 'Save' : 'Create'}
           </Button>
           <Button key="cancel" variant="link" onClick={resetForm}>
             Cancel

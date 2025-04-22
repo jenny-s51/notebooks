@@ -9,6 +9,7 @@ import {
   Divider,
   Split,
   SplitItem,
+  Content,
 } from '@patternfly/react-core';
 import { WorkspaceCreationImageDetails } from '~/app/pages/Workspaces/Creation/image/WorkspaceCreationImageDetails';
 import { WorkspaceCreationPropertiesTable } from '~/app/pages/Workspaces/Creation/properties/WorkspaceCreationPropertiesTable';
@@ -39,6 +40,9 @@ const WorkspaceCreationPropertiesSelection: React.FunctionComponent<
   );
 
   return (
+    <Content style={{ height: '100%' }}>
+    <p>Configure properties for your workspace.</p>
+    <Divider />
     <Split hasGutter>
       <SplitItem style={{ minWidth: '200px' }}>{imageDetailsContent}</SplitItem>
       <SplitItem isFilled>
@@ -69,7 +73,7 @@ const WorkspaceCreationPropertiesSelection: React.FunctionComponent<
             <Divider />
             <div className="pf-u-mb-0">
               <ExpandableSection
-                toggleText={isVolumesExpanded ? 'Volumes' : 'Add Volumes'}
+                toggleText="Volumes"
                 onToggle={() => setIsVolumesExpanded((prev) => !prev)}
                 isExpanded={isVolumesExpanded}
                 isIndented
@@ -97,7 +101,7 @@ const WorkspaceCreationPropertiesSelection: React.FunctionComponent<
             </div>
             {!isVolumesExpanded && (
               <div style={{ paddingLeft: '36px', marginTop: '-10px' }}>
-                <div>Workspace volume enables your project data to be persist</div>
+                <div>Workspace volumes enable your project data to persist.</div>
                 <div className="pf-u-font-size-sm">
                   <strong>{volumes.length} added</strong>
                 </div>
@@ -107,6 +111,7 @@ const WorkspaceCreationPropertiesSelection: React.FunctionComponent<
         </div>
       </SplitItem>
     </Split>
+    </Content>
   );
 };
 
