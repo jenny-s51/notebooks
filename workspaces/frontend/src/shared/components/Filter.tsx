@@ -7,7 +7,6 @@ import {
   MenuToggle,
   MenuToggleElement,
   Popper,
-  SearchInput,
   Toolbar,
   ToolbarContent,
   ToolbarFilter,
@@ -16,6 +15,7 @@ import {
   ToolbarToggleGroup,
 } from '@patternfly/react-core';
 import { FilterIcon } from '@patternfly/react-icons';
+import ThemeAwareSearchInput from '~/app/components/ThemeAwareSearchInput';
 
 export interface FilterProps {
   id: string;
@@ -213,12 +213,12 @@ const Filter: React.FC<FilterProps> = ({ id, onFilter, columnNames }) => {
               </ToolbarFilter>
             ))}
           </ToolbarGroup>
-          <SearchInput
-            id={`${id}-search-input`}
-            placeholder={`Filter by ${activeFilter.columnName}`}
+          <ThemeAwareSearchInput
             value={searchValue}
-            onChange={(_event, value) => onSearchChange(value)}
-            onClear={() => onSearchChange('')}
+            onChange={onSearchChange}
+            placeholder={`Filter by ${activeFilter.columnName}`}
+            fieldLabel={`Find by ${activeFilter.columnName}`}
+            aria-label={`Filter by ${activeFilter.columnName}`}
           />
         </ToolbarToggleGroup>
       </ToolbarContent>

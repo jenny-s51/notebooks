@@ -41,6 +41,7 @@ import {
 } from '@patternfly/react-table';
 import { CodeIcon, FilterIcon, SearchIcon } from '@patternfly/react-icons';
 import { WorkspaceKind, WorkspaceKindsColumnNames } from '~/shared/types';
+import ThemeAwareSearchInput from '~/app/components/ThemeAwareSearchInput';
 
 export enum ActionType {
   ViewDetails,
@@ -243,32 +244,6 @@ export const WorkspaceKinds: React.FunctionComponent = () => {
   const filteredWorkspaceKinds = React.useMemo(
     () => sortedWorkspaceKinds.filter(onFilter),
     [sortedWorkspaceKinds, onFilter],
-  );
-
-  // Set up name search input
-  const searchNameInput = React.useMemo(
-    () => (
-      <SearchInput
-        placeholder="Filter by name"
-        value={searchNameValue}
-        onChange={(_event, value) => onSearchNameChange(value)}
-        onClear={() => onSearchNameChange('')}
-      />
-    ),
-    [searchNameValue, onSearchNameChange],
-  );
-
-  // Set up description search input
-  const searchDescriptionInput = React.useMemo(
-    () => (
-      <SearchInput
-        placeholder="Filter by description"
-        value={searchDescriptionValue}
-        onChange={(_event, value) => onSearchDescriptionChange(value)}
-        onClear={() => onSearchDescriptionChange('')}
-      />
-    ),
-    [searchDescriptionValue, onSearchDescriptionChange],
   );
 
   // Set up status single select
@@ -568,7 +543,15 @@ export const WorkspaceKinds: React.FunctionComponent = () => {
                         categoryName="Name"
                         showToolbarItem={activeAttributeMenu === 'Name'}
                       >
-                        {searchNameInput}
+                        <ToolbarItem>
+                          <ThemeAwareSearchInput
+                            value={searchNameValue}
+                            onChange={onSearchNameChange}
+                            placeholder="Filter by Name"
+                            fieldLabel="Find by Name"
+                            aria-label="Filter by Name"
+                          />
+                        </ToolbarItem>
                       </ToolbarFilter>
                       <ToolbarFilter
                         labels={
@@ -581,7 +564,15 @@ export const WorkspaceKinds: React.FunctionComponent = () => {
                         categoryName="Description"
                         showToolbarItem={activeAttributeMenu === 'Description'}
                       >
-                        {searchDescriptionInput}
+                        <ToolbarItem>
+                          <ThemeAwareSearchInput
+                            value={searchDescriptionValue}
+                            onChange={onSearchDescriptionChange}
+                            placeholder="Filter by Description"
+                            fieldLabel="Find by Description"
+                            aria-label="Filter by Description"
+                          />
+                        </ToolbarItem>
                       </ToolbarFilter>
                       <ToolbarFilter
                         labels={statusSelection !== '' ? [statusSelection] : ([] as string[])}
