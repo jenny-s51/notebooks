@@ -174,6 +174,13 @@ export interface CommonAudit {
   updatedBy: string;
 }
 
+export interface CommonAudit {
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
+}
+
 export interface HealthCheckHealthCheck {
   status: HealthCheckServiceStatus;
   systemInfo: HealthCheckSystemInfo;
