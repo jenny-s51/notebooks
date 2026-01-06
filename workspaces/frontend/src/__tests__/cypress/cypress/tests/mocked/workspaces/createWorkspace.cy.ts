@@ -1,6 +1,7 @@
 import { mockModArchResponse } from 'mod-arch-core';
 import { createWorkspace } from '~/__tests__/cypress/cypress/pages/workspaces/createWorkspace';
 import { workspaces } from '~/__tests__/cypress/cypress/pages/workspaces/workspaces';
+import { secretsApiCreateModal } from '~/__tests__/cypress/cypress/pages/workspaces/workspaceForm';
 import { NOTEBOOKS_API_VERSION } from '~/__tests__/cypress/cypress/support/commands/api';
 import {
   buildMockNamespace,
@@ -774,6 +775,352 @@ describe('Create workspace', () => {
 
         createWorkspace.assertCardVisible(mockWorkspaceKind.name);
         createWorkspace.assertCardNotVisible(mockWorkspaceKind2.name);
+      });
+    });
+  });
+
+  describe('Secrets Creation Modal', () => {
+    const navigateToPropertiesStep = () => {
+      completeAllStepsToProperties(mockWorkspaceKind.name, mockImage.id, mockPodConfig.id);
+    };
+
+    const openSecretsCreationModal = () => {
+      navigateToPropertiesStep();
+      createWorkspace.expandSecretsSection();
+      createWorkspace.clickCreateNewSecret();
+    };
+
+    beforeEach(() => {
+      cy.interceptApi(
+        'GET /api/:apiVersion/secrets/:namespace',
+        { path: { apiVersion: NOTEBOOKS_API_VERSION, namespace: mockNamespace.name } },
+        mockModArchResponse([]),
+      ).as('listSecrets');
+    });
+
+    describe('Basic functionality', () => {
+      it('should open and close the secrets creation modal', () => {
+        navigateToPropertiesStep();
+
+        // Open modal
+        createWorkspace.expandSecretsSection();
+        createWorkspace.clickCreateNewSecret();
+        secretsApiCreateModal.assertModalExists();
+        secretsApiCreateModal.find().contains('Create Secret').should('be.visible');
+
+        // Close modal via Cancel button
+        secretsApiCreateModal.clickCancel();
+        secretsApiCreateModal.assertModalNotExists();
+      });
+
+      it('should display helper text for secret name field', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.assertHelperTextVisible();
+      });
+
+      it('should display secret type as Opaque and disabled', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.assertSecretTypeDisabled();
+        secretsApiCreateModal.assertSecretTypeValue('Opaque');
+      });
+
+      it('should have Create button enabled initially', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.assertCreateButtonEnabled();
+      });
+    });
+
+    describe('Form validation', () => {
+      it('should validate secret name is required', () => {
+        openSecretsCreationModal();
+
+        // Try to submit without secret name
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage('Secret name is required');
+      });
+
+      it('should validate secret name format - invalid characters', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName('Invalid_Secret_Name');
+        secretsApiCreateModal.typeKey(0, 'key1');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage(
+          'Secret name must consist of lower case alphanumeric characters',
+        );
+      });
+
+      it('should validate secret name format - must start with alphanumeric', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName('-invalid-secret');
+        secretsApiCreateModal.typeKey(0, 'key1');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage(
+          'Secret name must consist of lower case alphanumeric characters',
+        );
+      });
+
+      it('should validate secret name format - must end with alphanumeric', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName('invalid-secret-');
+        secretsApiCreateModal.typeKey(0, 'key1');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage(
+          'Secret name must consist of lower case alphanumeric characters',
+        );
+      });
+
+      it('should validate key is required', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName('valid-secret-name');
+        // Don't fill in key
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage('Key is required');
+      });
+
+      it('should validate value is required', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName('valid-secret-name');
+        secretsApiCreateModal.typeKey(0, 'key1');
+        // Don't fill in value
+
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage('Value is required');
+      });
+
+      it('should validate key format - invalid characters', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName('valid-secret-name');
+        secretsApiCreateModal.typeKey(0, 'invalid key!');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage(
+          'Key must consist of alphanumeric characters, hyphens, underscores, or dots',
+        );
+      });
+
+      it('should validate duplicate keys are not allowed', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName('valid-secret-name');
+        secretsApiCreateModal.typeKey(0, 'key1');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        // Add another key-value pair with duplicate key
+        secretsApiCreateModal.clickAddKeyValuePair();
+        secretsApiCreateModal.typeKey(1, 'key1');
+        secretsApiCreateModal.typeValue(1, 'value2');
+
+        secretsApiCreateModal.clickCreate();
+
+        secretsApiCreateModal.assertErrorAlertContainsMessage('Duplicate keys are not allowed');
+      });
+    });
+
+    describe('Key-value pairs management', () => {
+      it('should add a new key-value pair', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.assertKeyValuePairCount(1);
+
+        secretsApiCreateModal.clickAddKeyValuePair();
+
+        secretsApiCreateModal.assertKeyValuePairCount(2);
+      });
+
+      it('should remove a key-value pair when multiple pairs exist', () => {
+        openSecretsCreationModal();
+
+        // Add a second pair
+        secretsApiCreateModal.clickAddKeyValuePair();
+        secretsApiCreateModal.assertKeyValuePairCount(2);
+
+        // Remove the second pair
+        secretsApiCreateModal.clickRemoveKeyValuePair(1);
+        secretsApiCreateModal.assertKeyValuePairCount(1);
+      });
+
+      it('should not allow removing the last key-value pair', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.assertRemoveButtonDisabled(0);
+      });
+
+      it('should enable remove button when multiple pairs exist', () => {
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.clickAddKeyValuePair();
+        secretsApiCreateModal.assertRemoveButtonEnabled(0);
+        secretsApiCreateModal.assertRemoveButtonEnabled(1);
+      });
+    });
+
+    describe('Secret creation', () => {
+      it('should successfully create a secret with valid data', () => {
+        const secretName = 'test-secret';
+        const key1 = 'username';
+        const value1 = 'admin';
+        const key2 = 'password';
+        const value2 = 'secret123';
+
+        cy.interceptApi(
+          'POST /api/:apiVersion/secrets/:namespace',
+          { path: { apiVersion: NOTEBOOKS_API_VERSION, namespace: mockNamespace.name } },
+          mockModArchResponse({
+            name: secretName,
+            type: 'Opaque',
+            immutable: false,
+            contents: {
+              [key1]: { base64: btoa(value1) },
+              [key2]: { base64: btoa(value2) },
+            },
+          }),
+        ).as('createSecret');
+
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName(secretName);
+        secretsApiCreateModal.typeKey(0, key1);
+        secretsApiCreateModal.typeValue(0, value1);
+
+        // Add second key-value pair
+        secretsApiCreateModal.clickAddKeyValuePair();
+        secretsApiCreateModal.typeKey(1, key2);
+        secretsApiCreateModal.typeValue(1, value2);
+
+        secretsApiCreateModal.clickCreate();
+
+        cy.wait('@createSecret').then((interception) => {
+          expect(interception.request.body.data.name).to.equal(secretName);
+          expect(interception.request.body.data.type).to.equal('Opaque');
+          expect(interception.request.body.data.contents[key1].base64).to.equal(btoa(value1));
+          expect(interception.request.body.data.contents[key2].base64).to.equal(btoa(value2));
+        });
+
+        // Modal should close
+        secretsApiCreateModal.assertModalNotExists();
+      });
+
+      it('should add created secret to the secrets table', () => {
+        const secretName = 'my-new-secret';
+
+        cy.interceptApi(
+          'POST /api/:apiVersion/secrets/:namespace',
+          { path: { apiVersion: NOTEBOOKS_API_VERSION, namespace: mockNamespace.name } },
+          mockModArchResponse({
+            name: secretName,
+            type: 'Opaque',
+            immutable: false,
+            contents: {
+              key1: { base64: btoa('value1') },
+            },
+          }),
+        ).as('createSecret');
+
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName(secretName);
+        secretsApiCreateModal.typeKey(0, 'key1');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        cy.wait('@createSecret');
+
+        // Verify secret appears in the table
+        cy.contains('td', secretName).should('exist');
+        cy.contains('td', `/secrets/${secretName}`).should('exist');
+      });
+
+      it('should handle API error when creating secret', () => {
+        const secretName = 'test-secret';
+
+        cy.interceptApi(
+          'POST /api/:apiVersion/secrets/:namespace',
+          { path: { apiVersion: NOTEBOOKS_API_VERSION, namespace: mockNamespace.name } },
+          {
+            error: {
+              code: '409',
+              message: 'Secret already exists',
+            },
+          },
+        ).as('createSecretError');
+
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName(secretName);
+        secretsApiCreateModal.typeKey(0, 'key1');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        cy.wait('@createSecretError');
+
+        // Error alert should be displayed (axios error message)
+        secretsApiCreateModal.assertErrorAlertContainsMessage(
+          'Request failed with status code 409',
+        );
+        // Modal should remain open
+        secretsApiCreateModal.assertModalExists();
+      });
+
+      it('should reset form after successful creation', () => {
+        const secretName = 'reset-test-secret';
+
+        cy.interceptApi(
+          'POST /api/:apiVersion/secrets/:namespace',
+          { path: { apiVersion: NOTEBOOKS_API_VERSION, namespace: mockNamespace.name } },
+          mockModArchResponse({
+            name: secretName,
+            type: 'Opaque',
+            immutable: false,
+            contents: {
+              key1: { base64: btoa('value1') },
+            },
+          }),
+        ).as('createSecret');
+
+        openSecretsCreationModal();
+
+        secretsApiCreateModal.typeSecretName(secretName);
+        secretsApiCreateModal.typeKey(0, 'key1');
+        secretsApiCreateModal.typeValue(0, 'value1');
+
+        secretsApiCreateModal.clickCreate();
+
+        cy.wait('@createSecret');
+
+        // Open modal again
+        createWorkspace.clickCreateNewSecret();
+
+        // Form should be reset
+        secretsApiCreateModal.assertSecretNameValue('');
+        secretsApiCreateModal.assertKeyValue(0, '');
+        secretsApiCreateModal.assertValueValue(0, '');
       });
     });
   });
