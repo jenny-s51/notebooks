@@ -21,7 +21,7 @@ import { MenuToggle } from '@patternfly/react-core/dist/esm/components/MenuToggl
 import { SecretsSecretListItem, WorkspacesPodSecretMount } from '~/generated/data-contracts';
 import { useNotebookAPI } from '~/app/hooks/useNotebookAPI';
 import { useNamespaceContext } from '~/app/context/NamespaceContextProvider';
-import { SecretsApiCreateModal } from './secrets/SecretsApiCreateModal';
+import { SecretsCreateModal } from './secrets/SecretsCreateModal';
 
 interface WorkspaceFormPropertiesSecretsProps {
   secrets: WorkspacesPodSecretMount[];
@@ -35,7 +35,7 @@ export const WorkspaceFormPropertiesSecrets: React.FC<WorkspaceFormPropertiesSec
   const { api } = useNotebookAPI();
   const { selectedNamespace } = useNamespaceContext();
 
-  const [isApiCreateModalOpen, setIsApiCreateModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState<number | null>(null);
@@ -129,7 +129,7 @@ export const WorkspaceFormPropertiesSecrets: React.FC<WorkspaceFormPropertiesSec
       )}
       <Button
         variant="primary"
-        onClick={() => setIsApiCreateModalOpen(true)}
+        onClick={() => setIsCreateModalOpen(true)}
         style={{ width: 'fit-content' }}
       >
         Create New Secret
@@ -145,9 +145,9 @@ export const WorkspaceFormPropertiesSecrets: React.FC<WorkspaceFormPropertiesSec
         initialDefaultMode={attachedDefaultMode}
       /> */}
 
-      <SecretsApiCreateModal
-        isOpen={isApiCreateModalOpen}
-        setIsOpen={setIsApiCreateModalOpen}
+      <SecretsCreateModal
+        isOpen={isCreateModalOpen}
+        setIsOpen={setIsCreateModalOpen}
         onSecretCreated={handleSecretCreated}
       />
 

@@ -178,7 +178,7 @@ class WorkspaceForm {
   }
 }
 
-class SecretsApiCreateModal {
+class SecretsCreateModal {
   find() {
     // eslint-disable-next-line @cspell/spellchecker
     return cy.get('[aria-labelledby="create-secret-modal-title"]');
@@ -328,4 +328,4 @@ class SecretsApiCreateModal {
 }
 
 export { WorkspaceForm };
-export const secretsApiCreateModal = new SecretsApiCreateModal();
+export const secretsCreateModal = new SecretsCreateModal();

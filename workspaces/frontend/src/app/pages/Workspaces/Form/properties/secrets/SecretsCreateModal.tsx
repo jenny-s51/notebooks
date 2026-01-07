@@ -26,7 +26,7 @@ interface SecretKeyValuePair {
   value: string;
 }
 
-interface SecretsApiCreateModalProps {
+interface SecretsCreateModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   onSecretCreated?: (secretName: string) => void;
@@ -41,7 +41,7 @@ const SECRET_NAME_REGEX = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[
 // ConfigMap key regex - alphanumeric, hyphens, underscores, dots
 const CONFIG_MAP_KEY_REGEX = /^[-._a-zA-Z0-9]+$/;
 
-export const SecretsApiCreateModal: React.FC<SecretsApiCreateModalProps> = ({
+export const SecretsCreateModal: React.FC<SecretsCreateModalProps> = ({
   isOpen,
   setIsOpen,
   onSecretCreated,
@@ -297,4 +297,4 @@ export const SecretsApiCreateModal: React.FC<SecretsApiCreateModalProps> = ({
   );
 };
 
-export default SecretsApiCreateModal;
+export default SecretsCreateModal;
