@@ -83,7 +83,7 @@ export const SecretsCreateModal: React.FC<SecretsCreateModalProps> = ({
       return nameError;
     }
 
-    // Validate key-value pairs (Opaque is the only supported type)
+    const seenKeys = new Set<string>();
     for (let i = 0; i < keyValuePairs.length; i++) {
       const pair = keyValuePairs[i];
       const keyError = validateKey(pair.key);
@@ -93,13 +93,10 @@ export const SecretsCreateModal: React.FC<SecretsCreateModalProps> = ({
       if (!pair.value) {
         return `Value is required (pair ${i + 1})`;
       }
-    }
-
-    // Check for duplicate keys
-    const keys = keyValuePairs.map((p) => p.key);
-    const uniqueKeys = new Set(keys);
-    if (keys.length !== uniqueKeys.size) {
-      return 'Duplicate keys are not allowed';
+      if (seenKeys.has(pair.key)) {
+        return 'Duplicate keys are not allowed';
+      }
+      seenKeys.add(pair.key);
     }
 
     return null;
