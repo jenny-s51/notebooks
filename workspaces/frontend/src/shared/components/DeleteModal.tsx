@@ -7,12 +7,13 @@ import {
   ModalVariant,
 } from '@patternfly/react-core/dist/esm/components/Modal';
 import { Button } from '@patternfly/react-core/dist/esm/components/Button';
+import { Form } from '@patternfly/react-core/dist/esm/components/Form';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput';
 import { Stack, StackItem } from '@patternfly/react-core/dist/esm/layouts/Stack';
 import { FlexItem } from '@patternfly/react-core/dist/esm/layouts/Flex';
 import { HelperText, HelperTextItem } from '@patternfly/react-core/dist/esm/components/HelperText';
 import { default as ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { Form } from '@patternfly/react-core/dist/esm/components/Form';
+import { useThemeContext } from 'mod-arch-kubeflow';
 import { ActionButton } from '~/shared/components/ActionButton';
 import { ErrorAlert } from '~/shared/components/ErrorAlert';
 import ThemeAwareFormGroupWrapper from '~/shared/components/ThemeAwareFormGroupWrapper';
@@ -39,6 +40,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   const [inputValue, setInputValue] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | ApiErrorEnvelope | null>(null);
+  const { isMUITheme } = useThemeContext();
 
   useEffect(() => {
     if (!isOpen) {
@@ -80,7 +82,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
     >
       <ModalHeader title={title} titleIconVariant="warning" />
       <ModalBody>
-        <Stack>
+        <Stack hasGutter={!isMUITheme}>
           {error && (
             <StackItem>
               <ErrorAlert
