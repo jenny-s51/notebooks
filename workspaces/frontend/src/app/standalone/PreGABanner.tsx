@@ -22,13 +22,18 @@ const PreGABanner: React.FC = () => {
     >
       <Flex spaceItems={{ default: 'spaceItemsSm' }}>
         <FlexItem>
-          {/* TODO: Remove when https://github.com/opendatahub-io/mod-arch-library/issues/99 */}
-          <ExclamationTriangleIcon className="pf-v6-u-text-color-inverse" />
+          <ExclamationTriangleIcon
+            // TODO: Remove when https://github.com/opendatahub-io/mod-arch-library/issues/99
+            className="pf-v6-u-text-color-inverse"
+          />
         </FlexItem>
-        <FlexItem className="pf-v6-u-text-color-inverse">
+        <FlexItem
+          // TODO: Remove when https://github.com/opendatahub-io/mod-arch-library/issues/99 is completed
+          className="pf-v6-u-text-color-inverse"
+        >
           This is a pre-GA product.{' '}
-          {/* TODO: Remove when https://github.com/opendatahub-io/mod-arch-library/issues/99 is completed */}
           <a
+            // TODO: Remove when https://github.com/opendatahub-io/mod-arch-library/issues/99 is completed
             className="pf-v6-u-text-color-inverse"
             href={placeholderLink}
             target="_blank"
