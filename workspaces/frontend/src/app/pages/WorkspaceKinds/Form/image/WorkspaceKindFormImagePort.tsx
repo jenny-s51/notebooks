@@ -3,7 +3,6 @@ import {
   FormFieldGroupExpandable,
   FormFieldGroupHeader,
 } from '@patternfly/react-core/dist/esm/components/Form';
-import { Grid, GridItem } from '@patternfly/react-core/dist/esm/layouts/Grid';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput';
 import { WorkspaceKindImagePort } from '~/app/types';
 import ThemeAwareFormGroupWrapper from '~/shared/components/ThemeAwareFormGroupWrapper';
@@ -69,7 +68,7 @@ export const WorkspaceKindFormImagePort: React.FC<WorkspaceKindFormImagePortProp
       </ThemeAwareFormGroupWrapper>
       <ThemeAwareFormGroupWrapper label="Protocol" isRequired fieldId="port-protocol">
         <TextInput
-          name="displayName"
+          name="protocol"
           isDisabled
           type="text"
           value={currentPort.protocol}
